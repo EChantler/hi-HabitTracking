@@ -3,8 +3,9 @@ from sqlalchemy.orm import Mapped, mapped_column, sessionmaker, declarative_base
 from sqlalchemy import ForeignKey
 from datetime import datetime
 import typing
-
-db = sa.create_engine("sqlite:///:memory:")
+db_path = "db.db"
+db = sa.create_engine(f"sqlite:///{db_path}")
+# db = sa.create_engine("sqlite:///:memory:")
 Session = sessionmaker(bind=db)
 Base = declarative_base()
 def _fk_pragma_on_connect(dbapi_con, con_record):
@@ -54,7 +55,7 @@ class HabitEntry(Base):
     __tablename__ = "habit_entries"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    userid: Mapped[int] = sa.Column(
+    user_id: Mapped[int] = sa.Column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=False, index=True
     )
     user: Mapped[User] = relationship("User", back_populates="habit_entries")
@@ -72,12 +73,15 @@ def main() -> None:
     Base.metadata.create_all(db)
     user = User(name = "test", email = "test@test.com", apiKey = "testApiKey")
     habit = Habit( user_id = 1 ,name = "test", completion_criteria = "test", periodicity = 1)
+    habit_entry = HabitEntry(user_id = 1, habit_id = 1, created_on_utc = datetime.now())
     with Session() as session:
         session.add(user)
         session.add(habit)
+        session.add(habit_entry)
         session.commit()
         print(session.query(User).all())
         print(session.query(Habit).all())
+        print(session.query(HabitEntry).all())
 
 
 if __name__ == "__main__":
