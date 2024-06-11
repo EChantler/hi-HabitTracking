@@ -5,6 +5,8 @@ import questionary
 from app.cli.utils.process_utils import ProcessManager
 import requests
 import asyncio
+from app.core.dtos.habit import HabitResponse
+from app.core.dtos.habit_entry import HabitEntryRequest
 from app.core.dtos.user import UserRequest, UserResponse
 api_key = ""
 base_url = "http://localhost:3434"
@@ -18,33 +20,63 @@ def request_get(path: str, api_key: str):
 def request_register(user: UserRequest) -> UserResponse:
     response = requests.post(base_url + "/users", json = jsonable_encoder(user))
     return UserResponse(**response.json())
-
+def habits_get(api_key: str) -> list[HabitResponse]:
+    response =requests.get(base_url + "/habits", headers = auth_header(api_key))
+    return response.json()
+def habits_create(api_key: str, name: str, periodicity: int, completion_criteria: int):
+    requests.post(base_url + "/habits", json = {"name": name, "periodicity": periodicity, "completion_criteria": completion_criteria}, headers = auth_header(api_key))
+def habit_entry(api_key: str, habit_id: int):
+    requests.post(base_url + "/habit-entries", json = jsonable_encoder(HabitEntryRequest(habit_id = habit_id)), headers = auth_header(api_key))
 def cli_app():
-    print("hello")
+    
     api_key = api_key_flow()
-
-    return
-    exit = False
-    api_key = None
     hi = False
+    exit = False
+    first_greet = True
     while not exit:
         if(not hi):
             hi = questionary.text("Say 'hi' to begin.").ask() == "hi"
         else:
-            print("hi. Hope you're having a lovely day!")
-            if(api_key == None):
-                api_key = api_key_flow()
-            
+            if(first_greet):
+                print(f"hi {request_get('/users', api_key).json()['name']}. Hope you're having a lovely day!")
+                first_greet = False
             action = questionary.select(
-                "What would you like to do?",
-                choices=["Log a habit", "Change a habit",
-                         "Marvel at your own brilliance", 
-                         "Just hang around for a bit", 
-                         "Be an awesome force of nature somewhere else"]).ask()
+                        "What would you like to do?",
+                        choices=["Log a habit", "Add or change a habit",
+                                "Marvel at your own brilliance", 
+                                "Just hang around for a bit", 
+                                "Be an awesome force of nature somewhere else"]).ask()
             if(action == "Log a habit"):
-                log_habit()
+                print("Great! Well done you!")
+                habits = habits_get(api_key)
+                print(habits)
+                habit_names = [habit["name"] for habit in habits]
+                if(len(habit_names) == 0):
+                    print("You don't have any habits. Add some!")
+                    
+                selected_habit = questionary.select("What habit do you want to log?", choices= habit_names).ask()
+
+                print([habit['id'] for habit in habits if habit['name'] == selected_habit])
+                habit_id = [habit['id'] for habit in habits if habit['name'] == selected_habit][0]
+                habit_entry(api_key, habit_id)
+                print("Habit logged! Well done you!")
             elif(action == "Add or change a habit"):
-                pass
+                choice = questionary.select("Righto. What would you like to do?",["Create a habit", "Change a habit", "Delete a habit", "View all habits", "Go back"]).ask()
+                if(choice == "Create a habit"):
+                    name = questionary.text("What is the name of the habit?").ask()
+                    periodicity = questionary.text("How often do you want to log this habit?").ask()
+                    completion_criteria = questionary.text("Tell me about how you want to complete this habit").ask()
+                    habits_create(api_key, name, periodicity, completion_criteria)
+                    print("Awesome! Habit created! Here's a list of your habits:")
+                    habits = [habit["name"] for habit in habits_get(api_key)]
+                elif(choice == "Change a habit"):
+                    pass
+                elif(choice == "Delete a habit"):
+                    pass
+                elif(choice == "View all habits"):
+                    pass
+                elif(choice == "Go back"):
+                    continue
             elif(action == "Marvel at your own brilliance"):
                 pass
             elif(action == "Just hang around for a bit"):
@@ -52,16 +84,15 @@ def cli_app():
                 print("Awesome. I'm sure you picked a great number!")
             elif(action == "Be an awesome force of nature somewhere else"):
                 exit = True
+    print("Have a lovely day you magnificent human being!")
+    
 
-        time.sleep(1)
-        if(exit):
-            ProcessManager.terminate_processes()
-            print("Goodbye! You can press Ctrl+C to exit.")
+ 
 
-def log_habit():
-    pass
+
 def api_key_flow() -> str:
     print("Locating Api Key...")
+    global api_key
     try:
         with open('token.txt', 'r') as file:
             api_key = file.read()

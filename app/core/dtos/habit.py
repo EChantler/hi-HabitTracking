@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 class HabitResponse(BaseModel):
+    id: int
     name: str
     completion_criteria: str
     periodicity: int

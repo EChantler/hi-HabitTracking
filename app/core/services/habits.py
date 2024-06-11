@@ -7,7 +7,8 @@ class HabitsService:
 
     async def get_all(self, user_id) -> list[HabitResponse]:
         habits = self.session.query(Habit).filter(Habit.user_id == user_id).all()
-        return habits
+        # map Habit to HabitResponse
+        return [HabitResponse(id=habit.id, name=habit.name, completion_criteria=habit.completion_criteria, periodicity=habit.periodicity, created_on_utc=habit.created_on_utc) for habit in habits]
     
     async def get(self, user_id, habit_id):
         habit = self.session.query(Habit).filter(Habit.id == habit_id).first()
