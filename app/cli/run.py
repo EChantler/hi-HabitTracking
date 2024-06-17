@@ -27,6 +27,10 @@ def habits_create(api_key: str, name: str, periodicity: int, completion_criteria
     requests.post(base_url + "/habits", json = {"name": name, "periodicity": periodicity, "completion_criteria": completion_criteria}, headers = auth_header(api_key))
 def habit_entry(api_key: str, habit_id: int):
     requests.post(base_url + "/habit-entries", json = jsonable_encoder(HabitEntryRequest(habit_id = habit_id)), headers = auth_header(api_key))
+def habits_change(api_key: str, habit_id: int ,name: str, periodicity: int, completion_criteria: int):
+    requests.put(base_url + "/habits/"+ str(habit_id), json = {"name": name, "periodicity": periodicity, "completion_criteria": completion_criteria}, headers = auth_header(api_key))
+def habit_delete(api_key: str, habit_id: int):
+    requests.delete(base_url + "/habits/" + str(habit_id), headers = auth_header(api_key))
 def cli_app():
     
     api_key = api_key_flow()
@@ -53,9 +57,10 @@ def cli_app():
                 habit_names = [habit["name"] for habit in habits]
                 if(len(habit_names) == 0):
                     print("You don't have any habits. Add some!")
-                    
+                habit_names.append("Go back")
                 selected_habit = questionary.select("What habit do you want to log?", choices= habit_names).ask()
-
+                if(selected_habit == "Go back"):
+                    continue
                 print([habit['id'] for habit in habits if habit['name'] == selected_habit])
                 habit_id = [habit['id'] for habit in habits if habit['name'] == selected_habit][0]
                 habit_entry(api_key, habit_id)
@@ -70,11 +75,43 @@ def cli_app():
                     print("Awesome! Habit created! Here's a list of your habits:")
                     habits = [habit["name"] for habit in habits_get(api_key)]
                 elif(choice == "Change a habit"):
-                    pass
+                    habits = habits_get(api_key)
+                    habit_names = [habit["name"] for habit in habits]
+                    if(len(habit_names) == 0):
+                        print("You don't have any habits. Add some!")
+                        continue
+                    selected_habit = questionary.select("What habit do you want to change?", choices= habit_names).ask()
+                    print([habit['id'] for habit in habits if habit['name'] == selected_habit])
+                    habit_id = [habit['id'] for habit in habits if habit['name'] == selected_habit][0]
+                    name = questionary.text("What is the name of the habit?").ask()
+                    periodicity = questionary.text("How often do you want to log this habit?").ask()
+                    completion_criteria = questionary.text("Tell me about how you want to complete this habit").ask()
+                    habits_change(api_key, habit_id, name, periodicity, completion_criteria)
+                    print("Habit changed! Here's a list of your habits:")
+                    habits = [habit["name"] for habit in habits_get(api_key)]
+                    print(habits)
                 elif(choice == "Delete a habit"):
-                    pass
+                    habits = habits_get(api_key)
+                    habit_names = [habit["name"] for habit in habits]
+                    if(len(habit_names) == 0):
+                        print("You don't have any habits. Add some!")
+                        continue
+                    selected_habit = questionary.select("What habit do you want to delete?", choices= habit_names).ask()
+                    print([habit['id'] for habit in habits if habit['name'] == selected_habit])
+                    habit_id = [habit['id'] for habit in habits if habit['name'] == selected_habit][0]
+                    confirm = questionary.confirm("Are you sure you want to delete this habit? This will delete all habit entries related to this habit. This is a destructive action.", default=False).ask()
+                    if(confirm):
+                        habit_delete(api_key, habit_id)
+                        print("Habit deleted! Here's a list of your habits:")
+                        habits = [habit["name"] for habit in habits_get(api_key)]
+                        print(habits)
+                    else: 
+                        print("Thank goodness you didn't delete the habit. Here's a list of your habits:")
+                        habits = [habit["name"] for habit in habits_get(api_key)]
+                        print(habits)
                 elif(choice == "View all habits"):
-                    pass
+                    habits = [habit["name"] for habit in habits_get(api_key)]
+                    print(habits)
                 elif(choice == "Go back"):
                     continue
             elif(action == "Marvel at your own brilliance"):

@@ -33,3 +33,9 @@ class UsersService:
         characters = string.ascii_letters + string.digits
         api_key = ''.join(secrets.choice(characters) for _ in range(length))
         return api_key
+    async def get_with_api_key(self, api_key:int):
+        user = self.session.query(User).filter(User.apiKey == api_key).first()
+        print(f"User: {user}")
+        if(user is not None):
+            return user.id
+        return None

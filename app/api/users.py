@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 
 # from app.api.auth import auth_scheme
 from app.core.dtos.user import  UserRequest, UserResponse
-from app.core.data.db import Session, User
+from app.core.data.db import Session
 from app.core.services.users import UsersService
 from app.api.auth import api_key_auth, auth_scheme
 

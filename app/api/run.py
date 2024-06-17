@@ -1,5 +1,3 @@
-
-
 from fastapi.security import OAuth2PasswordBearer
 from app.core.data.db import Session, User
 

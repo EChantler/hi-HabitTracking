@@ -1,3 +1,7 @@
+# Project specific
+token.txt
+# Osx fragments
+.DS_Store
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

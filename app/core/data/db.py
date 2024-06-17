@@ -1,10 +1,25 @@
+import os
+from dotenv import load_dotenv
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, sessionmaker, declarative_base, relationship
 from sqlalchemy import ForeignKey
 from datetime import datetime
 import typing
-db_path = "db.db"
-db = sa.create_engine(f"sqlite:///{db_path}")
+
+environment = os.getenv("ENVIRONMENT")
+if(environment == "development"):
+    dotenv_path = ".env.development"
+if (environment == "testing"):
+    dotenv_path = ".env.testing"
+
+# if "pytest" in os.getenv("PYTEST_CURRENT_TEST", ""):
+#     dotenv_path = ".env.testing"
+# else:
+#     dotenv_path = ".env"
+
+load_dotenv(dotenv_path)
+db_path = os.getenv("SQLALCHEMY_DATABASE_URL")#"db.db"
+db = sa.create_engine(db_path)
 # db = sa.create_engine("sqlite:///:memory:")
 Session = sessionmaker(bind=db)
 Base = declarative_base()
@@ -46,7 +61,7 @@ class Habit(Base):
     created_on_utc: Mapped[datetime] = mapped_column(default=datetime.now)
     modified_on_utc: Mapped[datetime]= mapped_column(default=None, nullable=True)
     habit_entries: Mapped[typing.List["HabitEntry"]] = relationship(
-        "HabitEntry", back_populates="habit"
+        "HabitEntry", back_populates="habit", cascade="all, delete"
     )
     def __repr__(self) -> str:
         return f"Habit(id={self.id!r}, user_id={self.user_id!r}, name={self.name!r}, completion_criteria={self.completion_criteria!r}, periodicity={self.periodicity!r}, created_on_utc={self.created_on_utc!r}, modified_on_utc={self.modified_on_utc!r})"

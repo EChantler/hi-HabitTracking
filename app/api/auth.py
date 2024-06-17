@@ -3,22 +3,21 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
 
-from app.core.data.db import Session, User
-
-
+from app.core.data.db import Session
+from app.core.services.users import UsersService
 
 auth_scheme = APIKeyHeader(name="x-key")  # use token authentication
 
 
-def api_key_auth(api_key: str = Depends(auth_scheme)):
-    with Session() as session:
-        user = session.query(User).filter(User.apiKey == api_key).first()
-        print(f"User: {user}")
-        if(user is not None):
-            return user.id
-        raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Forbidden"
-            )
+async def api_key_auth(api_key: str = Depends(auth_scheme)):
+    session = Session()
+    users_service = UsersService(session)
+    user_id = await users_service.get_with_api_key(api_key)
+    if(user_id is not None):
+        return user_id
+    raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Forbidden"
+        )
         
 
