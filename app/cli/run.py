@@ -121,7 +121,7 @@ def cli_app():
                 print("Awesome. I'm sure you picked a great number!")
             elif(action == "Be an awesome force of nature somewhere else"):
                 exit = True
-    print("Have a lovely day you magnificent human being!")
+    print("Have a lovely day you majestic creature!")
     
 
  

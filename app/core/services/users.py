@@ -9,11 +9,11 @@ class UsersService:
     def __init__(self, session):
         self.session = session
 
-    async def get_all(self):
-        print("Getting users")
-        users = self.session.query(User).all()
-        print(users)
-        return [str(user.name) for user in users]
+    # async def get_all(self):
+    #     print("Getting users")
+    #     users = self.session.query(User).all()
+    #     print(users)
+    #     return [str(user.name) for user in users]
 
     async def get(self, user_id:int):
         user = self.session.query(User).filter(User.id == user_id).first()
@@ -33,7 +33,7 @@ class UsersService:
         characters = string.ascii_letters + string.digits
         api_key = ''.join(secrets.choice(characters) for _ in range(length))
         return api_key
-    async def get_with_api_key(self, api_key:int):
+    async def get_with_api_key(self, api_key:string):
         user = self.session.query(User).filter(User.apiKey == api_key).first()
         print(f"User: {user}")
         if(user is not None):

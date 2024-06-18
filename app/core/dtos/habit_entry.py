@@ -7,6 +7,7 @@ class HabitEntryRequest(BaseModel):
 
 
 class HabitEntryResponse(BaseModel):
+    id: int
     user_id: int
     habit_id: int
     created_on_utc: datetime
