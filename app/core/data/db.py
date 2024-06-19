@@ -6,6 +6,8 @@ from sqlalchemy import ForeignKey
 from datetime import datetime
 import typing
 
+from app.core.data.enums import Periodicity
+
 environment = os.getenv("ENVIRONMENT")
 if(environment == "development"):
     dotenv_path = ".env.development"
@@ -57,7 +59,7 @@ class Habit(Base):
     user: Mapped[str] = relationship("User", back_populates="habits", foreign_keys=[user_id])
     name: Mapped[str]
     completion_criteria: Mapped[str]
-    periodicity: Mapped[int]#enum int
+    periodicity: Mapped[Periodicity]#enum int
     created_on_utc: Mapped[datetime] = mapped_column(default=datetime.now)
     modified_on_utc: Mapped[datetime]= mapped_column(default=None, nullable=True)
     habit_entries: Mapped[typing.List["HabitEntry"]] = relationship(
@@ -65,6 +67,7 @@ class Habit(Base):
     )
     def __repr__(self) -> str:
         return f"Habit(id={self.id!r}, user_id={self.user_id!r}, name={self.name!r}, completion_criteria={self.completion_criteria!r}, periodicity={self.periodicity!r}, created_on_utc={self.created_on_utc!r}, modified_on_utc={self.modified_on_utc!r})"
+
 
 class HabitEntry(Base):
     __tablename__ = "habit_entries"

@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 from app.core.data.db import Base, Habit, Session, User, db
 import pytest
+from app.core.data.enums import Periodicity
 from app.core.dtos.habit import HabitRequest
 from app.core.dtos.user import UserRequest
 from app.core.services.habits import HabitsService
@@ -32,14 +33,14 @@ async def test_add_habit(db_session):
     
     # Act
     habitsService = HabitsService(db_session)
-    habit_response = await habitsService.add(1, HabitRequest(name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = 1))
+    habit_response = await habitsService.add(1, HabitRequest(name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = Periodicity.DAILY))
     
     # Assert
     habit = db_session.query(Habit).filter(Habit.id == habit_response.id).first()
     
     assert habit.name == "testHabit"
     assert habit.completion_criteria == "testCompletionCriteria"
-    assert habit.periodicity == 1
+    assert habit.periodicity == Periodicity.DAILY
     assert habit.id == 1
 
 @pytest.mark.asyncio
@@ -49,7 +50,7 @@ async def test_add_habit_user_does_not_exist(db_session):
     # Act
     habitsService = HabitsService(db_session)
     with pytest.raises(Exception):
-        habit_response = await habitsService.add(1, HabitRequest(name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = 1))
+        habit_response = await habitsService.add(1, HabitRequest(name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = Periodicity.DAILY))
     
     
 
@@ -57,7 +58,7 @@ async def test_add_habit_user_does_not_exist(db_session):
 async def test_get_habit(db_session):
     # Arrange
     await init(db_session)
-    db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = 1, created_on_utc = datetime.now()))
+    db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = Periodicity.DAILY, created_on_utc = datetime.now()))
     db_session.commit()
     # Act
     habitsService = HabitsService(db_session)
@@ -68,7 +69,7 @@ async def test_get_habit(db_session):
     
     assert habit.name == "testHabit"
     assert habit.completion_criteria == "testCompletionCriteria"
-    assert habit.periodicity == 1
+    assert habit.periodicity == Periodicity.DAILY
     assert habit.id == 1
 
 @pytest.mark.asyncio
@@ -91,7 +92,7 @@ async def test_update_habit_not_found(db_session):
     
     # Act
     habitsService = HabitsService(db_session)
-    habit_response = await habitsService.update(1, 1, HabitRequest(name = "testHabit2", completion_criteria = "testCompletionCriteria2", periodicity = 2))
+    habit_response = await habitsService.update(1, 1, HabitRequest(name = "testHabit2", completion_criteria = "testCompletionCriteria2", periodicity = Periodicity.WEEKLY))
 
     # Assert
     habit = db_session.query(Habit).filter(Habit.id == 1).first()
@@ -103,7 +104,7 @@ async def test_update_habit_not_found(db_session):
 async def test_delete_habit(db_session):
     # Arrange
     await init(db_session)
-    db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = 1, created_on_utc = datetime.now()))
+    db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = Periodicity.WEEKLY, created_on_utc = datetime.now()))
     db_session.commit()
     # Act
     habitsService = HabitsService(db_session)
@@ -131,8 +132,8 @@ async def test_delete_habit_not_found(db_session):
 async def test_get_all_habit(db_session):
     # Arrange
     await init(db_session)
-    db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = 1, created_on_utc = datetime.now()))
-    db_session.add(Habit(user_id = 1, name = "testHabit2", completion_criteria = "testCompletionCriteria2", periodicity = 1, created_on_utc = datetime.now()))
+    db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = Periodicity.WEEKLY, created_on_utc = datetime.now()))
+    db_session.add(Habit(user_id = 1, name = "testHabit2", completion_criteria = "testCompletionCriteria2", periodicity = Periodicity.DAILY, created_on_utc = datetime.now()))
     db_session.commit()
     
     # Act

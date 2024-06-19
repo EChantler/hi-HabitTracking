@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 from app.core.data.db import Base, Habit, HabitEntry, Session, User, db
 import pytest
+from app.core.data.enums import Periodicity
 from app.core.dtos.habit import HabitRequest
 from app.core.dtos.habit_entry import HabitEntryRequest
 from app.core.dtos.user import UserRequest
@@ -25,7 +26,7 @@ def db_session():
 
 async def init(db_session):
     db_session.add(User(name = "test", email = "test@test.com", apiKey = "1234", created_on_utc = datetime.now()))
-    db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = 1, created_on_utc = datetime.now()))
+    db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = Periodicity.DAILY, created_on_utc = datetime.now()))
     db_session.commit()
 
 @pytest.mark.asyncio

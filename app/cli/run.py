@@ -69,11 +69,12 @@ def cli_app():
                 choice = questionary.select("Righto. What would you like to do?",["Create a habit", "Change a habit", "Delete a habit", "View all habits", "Go back"]).ask()
                 if(choice == "Create a habit"):
                     name = questionary.text("What is the name of the habit?").ask()
-                    periodicity = questionary.text("How often do you want to log this habit?").ask()
-                    completion_criteria = questionary.text("Tell me about how you want to complete this habit").ask()
+                    periodicity = questionary.select("How often do you want to log this habit?", ["Daily", "Weekly", "Monthly"]).ask()
+                    completion_criteria = questionary.text("Tell me about how you would typically complete this habit").ask()
                     habits_create(api_key, name, periodicity, completion_criteria)
                     print("Awesome! Habit created! Here's a list of your habits:")
                     habits = [habit["name"] for habit in habits_get(api_key)]
+                    print(habits)
                 elif(choice == "Change a habit"):
                     habits = habits_get(api_key)
                     habit_names = [habit["name"] for habit in habits]
@@ -84,7 +85,7 @@ def cli_app():
                     print([habit['id'] for habit in habits if habit['name'] == selected_habit])
                     habit_id = [habit['id'] for habit in habits if habit['name'] == selected_habit][0]
                     name = questionary.text("What is the name of the habit?").ask()
-                    periodicity = questionary.text("How often do you want to log this habit?").ask()
+                    periodicity = questionary.select("How often do you want to log this habit?", ["Daily", "Weekly", "Monthly"]).ask()
                     completion_criteria = questionary.text("Tell me about how you want to complete this habit").ask()
                     habits_change(api_key, habit_id, name, periodicity, completion_criteria)
                     print("Habit changed! Here's a list of your habits:")
