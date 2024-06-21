@@ -8,15 +8,17 @@ from app.core.services.helpers.streaks import calculate_total_planned
 class HabitAnalyticsService:
     def __init__(self, session):
         self.session = session
-    def get_entries_for_habit(self, user_id, habit_id):
+        
+    def get_entries_for_habit(self, user_id, habit_id) -> list[HabitEntry]:
         habit = self.session.query(Habit).filter(and_(Habit.id == habit_id, Habit.user_id == user_id)).first()
-        entries = habit.entries
+        entries = habit.habit_entries
         return entries
-    def get_habit_summary(self, user_id, habit_id):
+    
+    async def get_habit_summary(self, user_id, habit_id) -> HabitSummary:
         # return object with summary data such as start date, total habit entries, longest streak, max possible entries
-        habit_summary = HabitSummary()
         habit = self.session.query(Habit).filter(and_(Habit.id == habit_id, Habit.user_id == user_id)).first()
-        entries = sorted(habit.entries, key=lambda entry: entry.created_on_utc)
+        entries = sorted(habit.habit_entries, key=lambda entry: entry.created_on_utc)
+        habit_summary = HabitSummary()
         habit_summary.total_completed = len(entries)
         habit_summary.habit_name = habit.name
         habit_summary.habit_id = habit.id
@@ -27,7 +29,7 @@ class HabitAnalyticsService:
 
         # Determine longest streak based on start date and periodicity
         habit_summary.longest_streak = 0
-    
+
         # Determine current streak based on last falter and periodicity
         habit_summary.current_streak = 0
 

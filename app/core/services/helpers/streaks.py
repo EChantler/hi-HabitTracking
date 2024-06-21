@@ -2,17 +2,17 @@
 from datetime import datetime, timedelta
 
 from app.core.data.enums import Periodicity
-
+import math
 def calculate_total_planned(start_date: datetime, periodicity: Periodicity) -> int:
     current_date = datetime.now()
     if periodicity == Periodicity.DAILY:
         return (current_date - start_date).days
     if periodicity == Periodicity.WEEKLY:
-        return (current_date - start_date).days / 7
+        return int(math.ceil((current_date - start_date).days / 7))
     if periodicity == Periodicity.MONTHLY:
         years_difference = current_date.year - start_date.year
         months_difference = current_date.month - start_date.month
-        return years_difference * 12 + months_difference
+        return int(math.ceil(years_difference * 12 + months_difference))
     return 0
 
 def calculate_longest_streak(entries: list[datetime],start_date: datetime, periodicity: Periodicity) -> int:

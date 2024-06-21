@@ -5,9 +5,13 @@ import questionary
 from app.cli.utils.process_utils import ProcessManager
 import requests
 import asyncio
+from app.core.dtos.analytics import HabitSummary
 from app.core.dtos.habit import HabitResponse
 from app.core.dtos.habit_entry import HabitEntryRequest
 from app.core.dtos.user import UserRequest, UserResponse
+from rich.console import Console
+from rich.table import Table
+
 api_key = ""
 base_url = "http://localhost:3434"
 def auth_header(api_key: str):
@@ -31,6 +35,9 @@ def habits_change(api_key: str, habit_id: int ,name: str, periodicity: int, comp
     requests.put(base_url + "/habits/"+ str(habit_id), json = {"name": name, "periodicity": periodicity, "completion_criteria": completion_criteria}, headers = auth_header(api_key))
 def habit_delete(api_key: str, habit_id: int):
     requests.delete(base_url + "/habits/" + str(habit_id), headers = auth_header(api_key))
+def get_habit_summary(api_key: str, habit_id: int)-> HabitSummary:
+    response = requests.get(base_url + "/habit-analytics/summary/" + str(habit_id), headers = auth_header(api_key))
+    return response.json()
 def cli_app():
     
     api_key = api_key_flow()
@@ -116,7 +123,30 @@ def cli_app():
                 elif(choice == "Go back"):
                     continue
             elif(action == "Marvel at your own brilliance"):
-                pass
+                habits = habits_get(api_key)
+                habit_names = [habit["name"] for habit in habits]
+                selected_habit = questionary.select("Awesome! I like that. Which habit would you like to look at?",choices= habits).ask()
+                habit_id = [habit['id'] for habit in habits if habit['name'] == selected_habit][0]
+                print("Habit summary: ", get_habit_summary(api_key, habit_id))
+
+                habit_summary = get_habit_summary(api_key, habit_id)
+                console = Console()
+
+                # Create a table
+                table = Table(title="Habit Summary")
+
+                # Add columns
+                table.add_column("Field", style="bold magenta")
+                table.add_column("Value", style="bold cyan")
+
+                # Add rows to the table
+                for key, value in habit_summary.items():
+                    table.add_row(key, str(value))
+
+                # Print the table to the console
+                console.print(table)
+
+
             elif(action == "Just hang around for a bit"):
                 questionary.text("Ok. Let's hang around for a bit. Pick a number... Any number...").ask()
                 print("Awesome. I'm sure you picked a great number!")
