@@ -38,12 +38,16 @@ def habit_delete(api_key: str, habit_id: int):
 def get_habit_summary(api_key: str, habit_id: int)-> HabitSummary:
     response = requests.get(base_url + "/habit-analytics/summary/" + str(habit_id), headers = auth_header(api_key))
     return response.json()
+def get_habits_summary(api_key: str)-> HabitSummary:
+    response = requests.get(base_url + "/habit-analytics/summary", headers = auth_header(api_key))
+    return response.json()
 def cli_app():
     
     api_key = api_key_flow()
     hi = False
     exit = False
     first_greet = True
+    console = Console()
     while not exit:
         if(not hi):
             hi = questionary.text("Say 'hi' to begin.").ask() == "hi"
@@ -123,30 +127,21 @@ def cli_app():
                 elif(choice == "Go back"):
                     continue
             elif(action == "Marvel at your own brilliance"):
-                habits = habits_get(api_key)
-                habit_names = [habit["name"] for habit in habits]
-                selected_habit = questionary.select("Awesome! I like that. Which habit would you like to look at?",choices= habits).ask()
-                habit_id = [habit['id'] for habit in habits if habit['name'] == selected_habit][0]
-                print("Habit summary: ", get_habit_summary(api_key, habit_id))
+                
+                option = questionary.select("Magnificent! What are we marvelling at today?", choices=["Habit Summary", "Habit Details"]).ask()
+                if(option == "Habit Summary"):
+                     habits_summary = get_habits_summary(api_key)
+                     pretty_print_table(console, "Habits Summary", habits_summary)
+                if(option == "Habit Details"):
+                    habits = habits_get(api_key)
+                    habit_names = [habit["name"] for habit in habits]
+                    selected_habit = questionary.select("Awesome! I like that. Which habit would you like to look at?",choices= habits).ask()
+                    habit_id = [habit['id'] for habit in habits if habit['name'] == selected_habit][0]
+                    print("Habit summary: ", get_habit_summary(api_key, habit_id))
 
-                habit_summary = get_habit_summary(api_key, habit_id)
-                console = Console()
-
-                # Create a table
-                table = Table(title="Habit Summary")
-
-                # Add columns
-                table.add_column("Field", style="bold magenta")
-                table.add_column("Value", style="bold cyan")
-
-                # Add rows to the table
-                for key, value in habit_summary.items():
-                    table.add_row(key, str(value))
-
-                # Print the table to the console
-                console.print(table)
-
-
+                    habit_summary = get_habit_summary(api_key, habit_id)
+                    pretty_print_table(console, "Habit Details", habit_summary)
+                    
             elif(action == "Just hang around for a bit"):
                 questionary.text("Ok. Let's hang around for a bit. Pick a number... Any number...").ask()
                 print("Awesome. I'm sure you picked a great number!")
@@ -156,7 +151,20 @@ def cli_app():
     
 
  
+def pretty_print_table(console, table_name ,table_data):
+    # Create a table
+        table = Table(title=table_name)
 
+        # Add columns
+        table.add_column("Field", style="bold magenta")
+        table.add_column("Value", style="bold cyan")
+
+        # Add rows to the table
+        for key, value in table_data.items():
+            table.add_row(key, str(value))
+
+        # Print the table to the console
+        console.print(table)
 
 def api_key_flow() -> str:
     print("Locating Api Key...")
