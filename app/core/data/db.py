@@ -8,19 +8,19 @@ import typing
 
 from app.core.data.enums import Periodicity
 
-environment = os.getenv("ENVIRONMENT")
-if(environment == "development"):
-    dotenv_path = ".env.development"
-if (environment == "testing"):
-    dotenv_path = ".env.testing"
+db_path = os.getenv("SQLALCHEMY_DATABASE_URL")
+if(db_path is None):
+    environment = os.getenv("ENVIRONMENT")
+    if(environment == "development"):
+        dotenv_path = ".env.development"
+    if (environment == "testing"):
+        dotenv_path = ".env.testing"
 
-# if "pytest" in os.getenv("PYTEST_CURRENT_TEST", ""):
-#     dotenv_path = ".env.testing"
-# else:
-#     dotenv_path = ".env"
 
-load_dotenv(dotenv_path)
-db_path = os.getenv("SQLALCHEMY_DATABASE_URL")#"db.db"
+
+    load_dotenv(dotenv_path)
+    db_path = os.getenv("SQLALCHEMY_DATABASE_URL")#"db.db"
+
 db = sa.create_engine(db_path)
 # db = sa.create_engine("sqlite:///:memory:")
 Session = sessionmaker(bind=db)

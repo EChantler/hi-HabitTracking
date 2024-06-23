@@ -27,6 +27,9 @@ def request_register(user: UserRequest) -> UserResponse:
 def habits_get(api_key: str) -> list[HabitResponse]:
     response =requests.get(base_url + "/habits", headers = auth_header(api_key))
     return response.json()
+def habits_get_by_periodicity(api_key: str, periodicity: str) -> list[HabitResponse]:
+    response =requests.get(base_url + f"/habits/periodicity/{periodicity}", headers = auth_header(api_key))
+    return response.json()
 def habits_create(api_key: str, name: str, periodicity: int, completion_criteria: int):
     requests.post(base_url + "/habits", json = {"name": name, "periodicity": periodicity, "completion_criteria": completion_criteria}, headers = auth_header(api_key))
 def habit_entry(api_key: str, habit_id: int):
@@ -77,7 +80,7 @@ def cli_app():
                 habit_entry(api_key, habit_id)
                 print("Habit logged! Well done you!")
             elif(action == "Add or change a habit"):
-                choice = questionary.select("Righto. What would you like to do?",["Create a habit", "Change a habit", "Delete a habit", "View all habits", "Go back"]).ask()
+                choice = questionary.select("Righto. What would you like to do?",["Create a habit", "Change a habit", "Delete a habit", "View habits", "Go back"]).ask()
                 if(choice == "Create a habit"):
                     name = questionary.text("What is the name of the habit?").ask()
                     periodicity = questionary.select("How often do you want to log this habit?", ["Daily", "Weekly", "Monthly"]).ask()
@@ -121,9 +124,15 @@ def cli_app():
                         print("Thank goodness you didn't delete the habit. Here's a list of your habits:")
                         habits = [habit["name"] for habit in habits_get(api_key)]
                         print(habits)
-                elif(choice == "View all habits"):
-                    habits = [habit["name"] for habit in habits_get(api_key)]
-                    print(habits)
+                elif(choice == "View habits"):
+                    option = questionary.select("How would you like to view your habits?", choices=["View all", "Periodicity"]).ask()
+                    if(option == "View all"):
+                        habits = [habit["name"] for habit in habits_get(api_key)]
+                        print(habits)
+                    else:
+                        periodicity = questionary.select("What periodicity would you like to view?", choices=["Daily", "Weekly", "Monthly"]).ask()
+                        habits = [habit["name"] for habit in habits_get_by_periodicity(api_key, periodicity)]
+                        print(habits)
                 elif(choice == "Go back"):
                     continue
             elif(action == "Marvel at your own brilliance"):

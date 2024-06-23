@@ -29,6 +29,8 @@ class HabitsSummary(BaseModel):
     most_completed_habit: str = ""
     most_completed_habit_count: int = -1
     least_completed_habit: str = ""
+    # most successful habit
+    # most successful habit completion
 
 
 

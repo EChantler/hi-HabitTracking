@@ -32,6 +32,7 @@ class HabitAnalyticsService:
 
         habits_summary.least_completed_habit = sorted(habit_summaries, key=lambda habit_summary: habit_summary.total_completed)[0].habit_name 
         habits_summary.most_completed_habit = sorted(habit_summaries, key=lambda habit_summary: habit_summary.total_completed, reverse=True)[0].habit_name
+        # TODO make this complete success rate rather than total completed
         habits_summary.most_completed_habit_count = sorted(habit_summaries, key=lambda habit_summary: habit_summary.total_completed, reverse=True)[0].total_completed
         
         # check if all current streaks are zero
