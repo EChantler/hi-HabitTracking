@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 import os
 from app.core.data.db import Base, Habit, HabitEntry, Session, User, db
@@ -58,11 +59,11 @@ async def test_get_habit_summary(db_session):
     
     db_session.add(Habit(user_id = 1, name = "testHabit", completion_criteria = "testCompletionCriteria", periodicity = Periodicity.DAILY, created_on_utc = datetime(2024,1,1)))
     db_session.add(HabitEntry(user_id = 1, habit_id = 1, created_on_utc = datetime(2024,1,1)))
-    db_session.add(HabitEntry(user_id = 1, habit_id = 1, created_on_utc = datetime(2024,1,2)))
+    db_session.add(HabitEntry(user_id = 1, habit_id = 1, created_on_utc = datetime(2024,1,2,22)))
     db_session.add(HabitEntry(user_id = 1, habit_id = 1, created_on_utc = datetime(2024,1,3)))
     # Act
     habitAnalyticsService = HabitAnalyticsService(db_session)
-    habit_summary = await habitAnalyticsService.get_habit_summary(1, 1)
+    habit_summary = await habitAnalyticsService.get_habit_summary(1, 1, datetime(2024,1,3))
     # Assert
     
     assert habit_summary.habit_id == 1
@@ -72,10 +73,10 @@ async def test_get_habit_summary(db_session):
     assert habit_summary.created_on_utc == datetime(2024,1,1)
     assert habit_summary.last_completed_on_utc == datetime(2024,1,3)
     assert habit_summary.longest_streak == 3
-    assert habit_summary.current_streak == 0
+    assert habit_summary.current_streak == 3
     assert habit_summary.total_completed == 3
-    assert habit_summary.total_incomplete == (datetime.now() - datetime(2024,1,1)).days - 3
-    assert habit_summary.total_planned == (datetime.now() - datetime(2024,1,1)).days
+    assert habit_summary.total_incomplete == 0
+    assert habit_summary.total_planned == 3
 
 @pytest.mark.asyncio
 async def test_get_habits_summary(db_session):
@@ -95,7 +96,7 @@ async def test_get_habits_summary(db_session):
 
     # Act
     habitAnalyticsService = HabitAnalyticsService(db_session)
-    habits_summary = await habitAnalyticsService.get_habits_summary(1)
+    habits_summary = await habitAnalyticsService.get_habits_summary(1,datetime(2024,1,13) )
     # Assert
     
     assert habits_summary.total_habits == 2
@@ -106,8 +107,15 @@ async def test_get_habits_summary(db_session):
     assert habits_summary.least_completed_habit == "testHabit2"
     assert habits_summary.most_completed_habit == "testHabit"
     assert habits_summary.most_completed_habit_count == 4
-    assert habits_summary.longest_current_streak == "None"
-    assert habits_summary.longest_current_streak_count == 0
+    assert habits_summary.longest_current_streak == "testHabit2"
+    assert habits_summary.longest_current_streak_count == 1
     assert habits_summary.longest_streak == "testHabit"
     assert habits_summary.longest_streak_count == 4
     
+if __name__ == "__main__":
+    async def main():
+        Base.metadata.create_all(db)
+        session = Session()
+        await test_get_habit_summary(session)
+    
+    asyncio.run(main())

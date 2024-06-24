@@ -16,6 +16,7 @@ class HabitSummary(BaseModel):
     total_completed: int = -1
     total_incomplete: int = -1
     total_planned: int = -1
+    success_rate: float = -1.0
 class HabitsSummary(BaseModel):
     total_habits: int = -1
     longest_streak: str = ""
@@ -29,8 +30,9 @@ class HabitsSummary(BaseModel):
     most_completed_habit: str = ""
     most_completed_habit_count: int = -1
     least_completed_habit: str = ""
-    # most successful habit
-    # most successful habit completion
+    most_successful_habit: str = ""
+    most_successful_habit_success_rate: float = -1.0
+
 
 
 
