@@ -1,4 +1,3 @@
-```markdown
 # Hi - Habit Tracking
 
 Welcome to the Habit Tracking App! This application helps you track and manage your habits effectively through a user-friendly interface and powerful API.
@@ -77,6 +76,6 @@ This project is licensed under the MIT License
 ---
 
 Happy habit tracking!
-```
+
 
 
