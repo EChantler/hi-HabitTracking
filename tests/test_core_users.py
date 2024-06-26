@@ -6,8 +6,6 @@ import pytest
 from app.core.dtos.user import UserRequest
 from app.core.services.users import UsersService
 
-os.environ["PYTEST_CURRENT_TEST"] = "pytest"
-
 @pytest.fixture(scope='function')
 def db_session():
     """Creates a new database session for a test."""

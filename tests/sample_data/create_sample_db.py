@@ -2,14 +2,22 @@
 # Create all tables
 from datetime import datetime
 from app.core.data.db import Base, Habit, HabitEntry, Session, User, db
-
 from app.core.data.enums import Periodicity
+
 # Run with SQLALCHEMY_DATABASE_URL=sqlite:///sample_db.db python -m tests.sample_data.create_sample_db
+
 def db_session():
     """Creates a new database session for a test."""
     # Create all tables
     Base.metadata.create_all(db)
     session = Session()
+    # Check if sampledb is empty
+    if session.query(User).count() == 0:
+        create_users(session)
+        create_habits(session)
+        create_habit_entries(session)
+        print("Sample data created at sample_db.db")
+    print("Sample database was already created. Run again after deleting sample_db.db to create a new one.")
     
     return session
 
@@ -23,8 +31,8 @@ def create_users(session):
 def create_habits(session):
     # habits for user 1
     session.add(Habit( user_id = 1,created_on_utc = datetime(2024,3,31), name = "read", completion_criteria = "read for 30 min a day", periodicity = Periodicity.DAILY))
-    session.add(Habit( user_id = 1,created_on_utc = datetime(2024,3,31), name = "yoga", completion_criteria = "15min yoga session in your lunch break", periodicity = Periodicity.DAILY))
-    session.add(Habit( user_id = 1,created_on_utc = datetime(2024,3,31), name = "gratitude drawing", completion_criteria = "draw something you're grateful for today", periodicity = Periodicity.DAILY))
+    session.add(Habit( user_id = 1,created_on_utc = datetime(2024,3,30), name = "yoga", completion_criteria = "15min yoga session in your lunch break", periodicity = Periodicity.DAILY))
+    session.add(Habit( user_id = 1,created_on_utc = datetime(2024,4,1), name = "gratitude drawing", completion_criteria = "draw something you're grateful for today", periodicity = Periodicity.DAILY))
     session.add(Habit( user_id = 1,created_on_utc = datetime(2024,3,31), name = "parkrun", completion_criteria = "run 5km in a 30min session", periodicity = Periodicity.WEEKLY))
     session.add(Habit( user_id = 1,created_on_utc = datetime(2024,3,31), name = "monthly planning", completion_criteria = "last sunday of the month, reflect on the past month and plan for the next", periodicity = Periodicity.MONTHLY))
     
@@ -39,7 +47,7 @@ def create_habits(session):
     session.commit()
 
 def create_habit_entries(session):
-     # Create realistic Habit Entries from 2024-4-1 to 2024-6-1 for user 1
+     # Create realistic Habit Entries from 2024-3-31 to 2024-4-30 for user 1
     session.add(HabitEntry(user_id = 1, habit_id = 1, created_on_utc = datetime(2024,4,1)))
     session.add(HabitEntry(user_id = 1, habit_id = 1, created_on_utc = datetime(2024,4,2)))
     session.add(HabitEntry(user_id = 1, habit_id = 1, created_on_utc = datetime(2024,4,3)))
@@ -214,9 +222,8 @@ def create_habit_entries(session):
 
 if __name__ == "__main__":
     session = db_session()
-    create_users(session)
-    create_habits(session)
-    create_habit_entries(session)
+    
+    
 
 
 

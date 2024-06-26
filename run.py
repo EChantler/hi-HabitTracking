@@ -1,4 +1,5 @@
 
+import os
 import subprocess
 import sys
 from app.cli.utils.process_utils import ProcessManager
@@ -6,7 +7,9 @@ def run_api():
     # return subprocess.Popen(["python", "-m", "app.api.run"])
     with open("api.log", "w") as log_file:
         # Redirect both stdout and stderr to the log file
-        return subprocess.Popen(["python", "-m", "app.api.run"], stdout=log_file, stderr=log_file)
+        env = os.environ.copy()
+        env["ENVIRONMENT"] = "development"
+        return subprocess.Popen(["python", "-m", "app.api.run"], stdout=log_file, stderr=log_file, env=env)
 
 
 def run_cli():
