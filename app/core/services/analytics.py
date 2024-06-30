@@ -13,10 +13,13 @@ class HabitAnalyticsService:
         self.session = session
         
     def get_entries_for_habit(self, user_id, habit_id) -> list[HabitEntry]:
+        """Get all entries for a specific habit"""
         habit = self.session.query(Habit).filter(and_(Habit.id == habit_id, Habit.user_id == user_id)).first()
         entries = habit.habit_entries
         return entries
+    
     async def get_habits_summary(self, user_id, current_date) -> HabitsSummary:
+        """Get summary of all habits for a user"""
         habits: list[Habit] = self.session.query(Habit).filter(Habit.user_id == user_id).all()
         if(len(habits) == 0):
             return HabitsSummary()
@@ -54,6 +57,7 @@ class HabitAnalyticsService:
         return habits_summary
 
     async def get_habit_summary(self, user_id, habit_id, current_date) -> HabitSummary:
+        """Get single habit summary such as name, completion criteria, total number of entries, periodicity, streaks since it's creation up until the datetime supplied"""
         # return object with summary data such as start date, total habit entries, longest streak, max possible entries
         habit = self.session.query(Habit).filter(and_(Habit.id == habit_id, Habit.user_id == user_id)).first()
         entries: list[HabitEntry] = sorted(habit.habit_entries, key=lambda entry: entry.created_on_utc)
@@ -72,7 +76,6 @@ class HabitAnalyticsService:
         habit_summary.last_completed_on_utc = entries[-1].created_on_utc
 
         # Determine longest streak based on start date and periodicity
-        
         streaks = calculate_streak(entry_dates, habit.created_on_utc, current_date, habit.periodicity)
         habit_summary.longest_streak = streaks["longest_streak"]
 
@@ -85,11 +88,11 @@ class HabitAnalyticsService:
         habit_summary.total_incomplete = max( habit_summary.total_planned - habit_summary.total_completed, 0)
 
         habit_summary.success_rate = round(habit_summary.total_completed / habit_summary.total_planned, 2)
-
-
-
+        
         return habit_summary
+    
     def get_total_periods(self, start_date, end_date, periodicity):
+        """Calculate total period based on start date, end date and periodicity"""
         if(periodicity == Periodicity.DAILY):
             return (end_date - start_date).days
         if(periodicity == Periodicity.WEEKLY):
@@ -99,11 +102,3 @@ class HabitAnalyticsService:
             months_difference = end_date.month - start_date.month
             return int(math.ceil(years_difference * 12 + months_difference))
         return 0
-    def get_all_periods_set(self, start_date, end_date, periodicity):
-        if(periodicity == Periodicity.DAILY):
-            return set(range(start_date.day, end_date.day + 1))
-        if(periodicity == Periodicity.WEEKLY):
-            return set(range(start_date.isocalendar()[1], end_date.isocalendar()[1] + 1))
-        if(periodicity == Periodicity.MONTHLY):
-            return set(range(start_date.month, end_date.month + 1))
-        return set()

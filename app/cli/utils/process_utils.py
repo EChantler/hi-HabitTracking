@@ -1,6 +1,5 @@
 import sys
 
-
 class ProcessManager:
     api_process = None
     cli_process = None

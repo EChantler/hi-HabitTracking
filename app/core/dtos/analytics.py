@@ -1,8 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
-
 from app.core.data.enums import Periodicity
-from app.core.dtos.habit import HabitResponse
 
 class HabitSummary(BaseModel):
     habit_id: int = 0
@@ -17,6 +15,7 @@ class HabitSummary(BaseModel):
     total_incomplete: int = -1
     total_planned: int = -1
     success_rate: float = -1.0
+
 class HabitsSummary(BaseModel):
     total_habits: int = -1
     longest_streak: str = ""

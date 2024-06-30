@@ -1,10 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-
 class HabitEntryRequest(BaseModel):
     habit_id: int
-
 
 class HabitEntryResponse(BaseModel):
     id: int

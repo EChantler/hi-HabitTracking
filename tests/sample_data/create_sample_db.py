@@ -1,5 +1,3 @@
-
-# Create all tables
 from datetime import datetime
 from app.core.data.db import Base, Habit, HabitEntry, Session, User, db
 from app.core.data.enums import Periodicity
@@ -223,7 +221,3 @@ def create_habit_entries(session):
 if __name__ == "__main__":
     session = db_session()
     
-    
-
-
-

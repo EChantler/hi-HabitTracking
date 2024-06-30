@@ -1,6 +1,5 @@
 from fastapi.security import OAuth2PasswordBearer
 from app.core.data.db import Session, User
-
 from app.core.data.db import Base, db
 from app.core.dtos.user import UserRequest
 from app.core.services.users import UsersService
@@ -9,14 +8,13 @@ import asyncio
 from fastapi import FastAPI
 from . import habits, users, habit_entries, analytics#, auth
 
-# init the db
+# Init the db
 Base.metadata.create_all(db)
 
 # Create the FastAPI app
 app = FastAPI()
 
 # Include the routers
-# app.include_router(auth.router, tags=["Auth"], prefix="/auth")
 app.include_router(users.router, tags=["Users"], prefix="/users")
 app.include_router(habits.router, tags=["Habits"], prefix="/habits")
 app.include_router(habit_entries.router, tags=["Habit Entries"], prefix="/habit-entries")

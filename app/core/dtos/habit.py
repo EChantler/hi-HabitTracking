@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
-
 from app.core.data.enums import Periodicity
+
 class HabitResponse(BaseModel):
     id: int
     name: str

@@ -8,6 +8,7 @@ import typing
 
 from app.core.data.enums import Periodicity
 
+# Get the connection string for the db
 db_path = os.getenv("SQLALCHEMY_DATABASE_URL")
 if(db_path is None):
     environment = os.getenv("ENVIRONMENT")
@@ -16,21 +17,21 @@ if(db_path is None):
     if (environment == "testing"):
         dotenv_path = ".env.testing"
 
-
-
     load_dotenv(dotenv_path)
-    db_path = os.getenv("SQLALCHEMY_DATABASE_URL")#"db.db"
+    db_path = os.getenv("SQLALCHEMY_DATABASE_URL")
 
+# Init the db
 db = sa.create_engine(db_path)
-# db = sa.create_engine("sqlite:///:memory:")
 Session = sessionmaker(bind=db)
 Base = declarative_base()
+
+# Enable foreign key constraints, since sqlite does not have them by default
 def _fk_pragma_on_connect(dbapi_con, con_record):
     dbapi_con.execute('pragma foreign_keys=ON')
-
 from sqlalchemy import event
 event.listen(db, 'connect', _fk_pragma_on_connect)
 
+# Create all tables
 class User(Base):
     __tablename__ = "users"
 
@@ -87,7 +88,9 @@ class HabitEntry(Base):
     def __repr__(self) -> str:
         return f"HabitEntry(id={self.id!r}, user_id={self.user_id!r}, habit_id={self.habit_id!r}, created_on_utc={self.created_on_utc!r}, modified_on_utc={self.modified_on_utc!r})"
 
+
 def main() -> None:
+    # For testing purposes if this file is run directly
     Base.metadata.create_all(db)
     user = User(name = "test", email = "test@test.com", apiKey = "testApiKey")
     habit = Habit( user_id = 1 ,name = "test", completion_criteria = "test", periodicity = 1)
@@ -100,7 +103,5 @@ def main() -> None:
         print(session.query(User).all())
         print(session.query(Habit).all())
         print(session.query(HabitEntry).all())
-
-
 if __name__ == "__main__":
     main()
