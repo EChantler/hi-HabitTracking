@@ -20,7 +20,6 @@ class UsersService:
         '''Add a new user. Returns UserResponse with api_key'''
         api_key = self.__generate_api_key(10)
         user = User(name = user_dto.name, email = user_dto.email, apiKey = api_key , created_on_utc = datetime.now())
-        print(user)
         self.session.add(user)
         self.session.commit()
         return UserResponse(name = user_dto.name, email = user_dto.email, api_key = api_key)
@@ -33,7 +32,6 @@ class UsersService:
     async def get_with_api_key(self, api_key:string):
         '''Get a user's id by api_key. Returns None if not found'''
         user = self.session.query(User).filter(User.apiKey == api_key).first()
-        print(f"User: {user}")
         if(user is not None):
             return user.id
         return None
