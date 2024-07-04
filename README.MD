@@ -42,6 +42,7 @@ To run the Command Line Interface:
 ```bash
 python -m app.cli.run
 ```
+The Cli will prompt you for a token if it can't find a token.txt file. You can use "testApiKey" to access the user in the sample database provided or you can create a new user. 
 
 #### Run the CLI and API Together
 > **Note:** This feature is currently broken. Please run the API and CLI separately.
