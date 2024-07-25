@@ -24,11 +24,6 @@ These instructions will help you set up and run the project on your local machin
     pip install -r requirements.txt
     ```
 
-3. **Freeze the current requirements:**
-    ```bash
-    pip freeze > requirements.txt
-    ```
-
 ### Running the Application
 
 #### Run the API
